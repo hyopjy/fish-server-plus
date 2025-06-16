@@ -3,9 +3,12 @@ package fish.plus.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import fish.plus.config.BusinessException;
 import fish.plus.data.bo.RodeoBo;
 import fish.plus.data.entity.RodeoEntity;
 import fish.plus.data.entity.RodeoRecordEntity;
+import fish.plus.data.vo.GroupUserInfoVo;
+import fish.plus.data.vo.Result;
 import fish.plus.data.vo.RodeoInfoVo;
 import fish.plus.mapper.RodeoMapper;
 import fish.plus.mapper.RodeoRecordMapper;
@@ -26,8 +29,9 @@ public class RodeoService {
     @Autowired
     private RodeoRecordMapper rodeoRecordMapper;
 
-    public RodeoInfoVo getRodeoInfoVo() {
+    public RodeoInfoVo getRodeoInfoVo(Long groupId) {
         LambdaQueryWrapper<RodeoEntity> lqw = new LambdaQueryWrapper<>();
+        lqw.eq(RodeoEntity::getGroupId, groupId);
         lqw.last("limit 1");
         RodeoEntity rodeo  = rodeoMapper.selectOne(lqw);
         if(Objects.isNull(rodeo)){
@@ -43,8 +47,54 @@ public class RodeoService {
         return vo;
     }
 
-    public Map addRodeo(RodeoBo rodeoBo) {
+    public void addRodeo(RodeoBo rodeoBo) {
+        LambdaQueryWrapper<RodeoEntity> lqw = new LambdaQueryWrapper<>();
+        lqw.eq(RodeoEntity::getGroupId, rodeoBo.getGroupId());
+        lqw.last("limit 1");
+        RodeoEntity rodeo  = rodeoMapper.selectOne(lqw);
+        // BusinessException
+        if(Objects.nonNull(rodeo) && 1 == rodeo.getRunning()){
+            throw new BusinessException("游戏正在进行,不允许创建");
+        }
+        RodeoEntity saveRodeo = new RodeoEntity();
+        if (Objects.nonNull(rodeo)) {
+            saveRodeo.setId(rodeo.getId());
+        }
+        saveRodeo.setPlayingMethod(rodeoBo.getPlayingMethod());
+        saveRodeo.setGroupId(rodeoBo.getGroupId());
+        saveRodeo.setVenue(rodeoBo.getVenue());
+        saveRodeo.setDay(rodeoBo.getDay());
+        saveRodeo.setStartTime(rodeoBo.getStartTime() + ":00");
+        saveRodeo.setEndTime(rodeoBo.getEndTime() + ":00");
+        saveRodeo.setPlayers(rodeoBo.getPlayers());
+        saveRodeo.setRound(rodeoBo.getRound());
+        saveRodeo.setRunning(0);
+        rodeoMapper.insertOrUpdate(saveRodeo);
 
-        return new HashMap<>();
+    }
+
+    public void openGame(Long groupId) {
+        LambdaQueryWrapper<RodeoEntity> lqw = new LambdaQueryWrapper<>();
+        lqw.eq(RodeoEntity::getGroupId, groupId);
+        lqw.last("limit 1");
+        RodeoEntity rodeo  = rodeoMapper.selectOne(lqw);
+        // BusinessException
+        if(Objects.nonNull(rodeo) && 1 == rodeo.getRunning()){
+            throw new BusinessException("游戏正在进行,不允许开始");
+        }
+
+        // todo 发送消息
+
+        rodeo.setRunning(1);
+        rodeoMapper.updateById(rodeo);
+
+    }
+
+    /**
+     * 获取所有群
+     * @return
+     */
+    public Result<GroupUserInfoVo> getGroupUser() {
+        return  null;
     }
 }

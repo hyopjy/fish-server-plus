@@ -1,29 +1,48 @@
 package fish.plus.controller;
 
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import fish.plus.data.bo.RodeoBo;
+import fish.plus.data.vo.GroupUserInfoVo;
+import fish.plus.data.vo.Result;
 import fish.plus.data.vo.RodeoInfoVo;
 import fish.plus.service.RodeoService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-@RestController("/rodeo")
+@RestController
+@RequestMapping("/api")
 public class RodeoController {
 
     @Autowired
     private RodeoService rodeoService;
-    @GetMapping("/query")
-    public RodeoInfoVo getRodeoInfoVo(){
-        return rodeoService.getRodeoInfoVo();
+
+    @GetMapping("/all-group-user")
+    public Result<GroupUserInfoVo> getAllGroupUser(){
+        return rodeoService.getGroupUser();
     }
 
-    @GetMapping("/add")
-    public Map addRodeo(@RequestBody RodeoBo rodeoBo){
-        return rodeoService.addRodeo(rodeoBo);
+    @GetMapping("/rodeo/query")
+    public Result<RodeoInfoVo> getRodeoInfoVo(@RequestParam("groupId")
+                                                  @JsonSerialize(using = ToStringSerializer.class) Long groupId){
+        return Result.ok(rodeoService.getRodeoInfoVo(groupId));
     }
+
+    @PostMapping("/rodeo/add")
+    public Result addRodeo(@RequestBody RodeoBo rodeoBo){
+        rodeoService.addRodeo(rodeoBo);
+        return  Result.ok(null);
+    }
+
+    @PostMapping("/rodeo/open-game")
+    public Result openGame(@RequestParam("groupId")
+                               @JsonSerialize(using = ToStringSerializer.class) Long groupId){
+        rodeoService.openGame(groupId);
+        return  Result.ok(null);
+    }
+
+
 }

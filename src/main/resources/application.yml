@@ -1,3 +1,7 @@
+server:
+  port: 18520
+  servlet:
+    context-path: /
 # application.properties
 netty:
   port: 1883
