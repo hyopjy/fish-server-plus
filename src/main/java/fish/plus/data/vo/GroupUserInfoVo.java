@@ -2,25 +2,18 @@ package fish.plus.data.vo;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import fish.plus.data.entity.GroupInfoEntity;
+import fish.plus.data.entity.GroupUserEntity;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
 public class GroupUserInfoVo {
-    @JsonSerialize(using = ToStringSerializer.class)
-    private Long groupId;
 
-    private String groupName;
+    private GroupInfoEntity group;
 
-    private List<GroupUserInfo> groupUserList;
+    private List<GroupUserEntity> groupUserList;
 
-    @Data
-    public static class GroupUserInfo {
-        @JsonSerialize(using = ToStringSerializer.class)
-        private Long userId;
-
-        private String userNick;
-    }
 
 }

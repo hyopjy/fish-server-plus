@@ -29,6 +29,7 @@ public class RodeoService {
     @Autowired
     private RodeoRecordMapper rodeoRecordMapper;
 
+
     public RodeoInfoVo getRodeoInfoVo(Long groupId) {
         LambdaQueryWrapper<RodeoEntity> lqw = new LambdaQueryWrapper<>();
         lqw.eq(RodeoEntity::getGroupId, groupId);
@@ -90,11 +91,5 @@ public class RodeoService {
 
     }
 
-    /**
-     * 获取所有群
-     * @return
-     */
-    public Result<GroupUserInfoVo> getGroupUser() {
-        return  null;
-    }
+
 }

@@ -7,10 +7,12 @@ import fish.plus.data.bo.RodeoBo;
 import fish.plus.data.vo.GroupUserInfoVo;
 import fish.plus.data.vo.Result;
 import fish.plus.data.vo.RodeoInfoVo;
+import fish.plus.service.GroupService;
 import fish.plus.service.RodeoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -20,9 +22,12 @@ public class RodeoController {
     @Autowired
     private RodeoService rodeoService;
 
+    @Autowired
+    private GroupService groupService;
+
     @GetMapping("/all-group-user")
-    public Result<GroupUserInfoVo> getAllGroupUser(){
-        return rodeoService.getGroupUser();
+    public Result<List<GroupUserInfoVo>> getAllGroupUser(){
+        return groupService.getGroupUser();
     }
 
     @GetMapping("/rodeo/query")
