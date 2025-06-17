@@ -1,7 +1,7 @@
 server:
   port: 18520
   servlet:
-    context-path: /
+    context-path: /fish-server
 # application.properties
 netty:
   port: 1883
@@ -12,9 +12,9 @@ netty:
   max-frame-length: 1048576
 spring:
   datasource:
-    url: jdbc:mysql://47.121.130.134:3307/fish-plus?useSSL=false&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://47.121.130.134:3306/fish-plus?useSSL=false&serverTimezone=Asia/Shanghai
     username: root
-    password:
+    password: zyjy110.
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource  # 指定使用 Druid
 
