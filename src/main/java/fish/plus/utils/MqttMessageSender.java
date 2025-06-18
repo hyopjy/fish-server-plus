@@ -90,4 +90,47 @@ public class MqttMessageSender {
     public static Set<ChannelHandlerContext> getTopic(String topic) {
         return topicSubscribers.get(topic);
     }
+
+
+    /**
+     * 主动向订阅指定主题的客户端发送消息
+     *
+     * @param topic   主题名称
+     * @param message 消息内容
+     */
+    public static void sendMessageToSubscribers(String topic, String message) {
+        MqttMessageSender.sendMessage(topic, message, MqttQoS.AT_MOST_ONCE);
+    }
+
+    /**
+     * 主动向订阅指定主题的客户端发送消息（支持自定义QoS）
+     *
+     * @param topic   主题名称
+     * @param message 消息内容
+     * @param qos     服务质量级别
+     */
+    public static void sendMessageToSubscribers(String topic, String message, MqttQoS qos) {
+        MqttMessageSender.sendMessage(topic, message, qos);
+    }
+
+    /**
+     * 获取指定主题的订阅者数量
+     *
+     * @param topic 主题名称
+     * @return 订阅者数量
+     */
+    public static int getSubscriberCount(String topic) {
+        Set<ChannelHandlerContext> subscribers = MqttMessageSender.getTopic(topic);
+        return subscribers != null ? subscribers.size() : 0;
+    }
+
+    /**
+     * 检查指定主题是否有订阅者
+     *
+     * @param topic 主题名称
+     * @return 是否有订阅者
+     */
+    public static boolean hasSubscribers(String topic) {
+        return getSubscriberCount(topic) > 0;
+    }
 }

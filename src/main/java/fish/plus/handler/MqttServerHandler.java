@@ -6,36 +6,30 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.mqtt.*;
-import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 @Slf4j
 @ChannelHandler.Sharable
 public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> {
 
-    // 记录每个主题的订阅者
-//    private final Map<String, Set<ChannelHandlerContext>> topicSubscribers = new HashMap<>();
-
-    private MqttMessageSender mqttMessageSender;
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, MqttMessage msg) {
         if (msg instanceof MqttConnectMessage) {
             handleConnect(ctx, (MqttConnectMessage) msg);
+            log.info("Connected");
         } else if (msg instanceof MqttPublishMessage) {
             handlePublish(ctx, (MqttPublishMessage) msg);
+            log.info("Published");
         } else if (msg instanceof MqttSubscribeMessage) {
             handleSubscribe(ctx, (MqttSubscribeMessage) msg);
+            log.info("Subscribe");
         } else if (msg instanceof MqttUnsubscribeMessage) {
             handleUnsubscribe(ctx, (MqttUnsubscribeMessage) msg);
+            log.info("Unsubscribe");
         }
     }
 
@@ -85,11 +79,6 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
         // 移除订阅关系
         for (String topic : msg.payload().topics()) {
             MqttMessageSender.removeSubscriber(topic, ctx);
-//            topicSubscribers.computeIfPresent(topic, (k, contexts) -> {
-//                contexts.remove(ctx);
-//                log.info("客户端已取消订阅主题: {}", topic);
-//                return contexts.isEmpty() ? null : contexts;
-//            });
         }
     }
 

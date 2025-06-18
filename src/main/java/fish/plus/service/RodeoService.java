@@ -1,23 +1,17 @@
 package fish.plus.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import fish.plus.config.BusinessException;
 import fish.plus.data.bo.RodeoBo;
 import fish.plus.data.entity.RodeoEntity;
 import fish.plus.data.entity.RodeoRecordEntity;
-import fish.plus.data.vo.GroupUserInfoVo;
-import fish.plus.data.vo.Result;
 import fish.plus.data.vo.RodeoInfoVo;
 import fish.plus.mapper.RodeoMapper;
 import fish.plus.mapper.RodeoRecordMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -28,6 +22,9 @@ public class RodeoService {
 
     @Autowired
     private RodeoRecordMapper rodeoRecordMapper;
+
+    @Autowired
+    private MqttNotificationService mqttNotificationService;
 
 
     public RodeoInfoVo getRodeoInfoVo(Long groupId) {
@@ -85,7 +82,7 @@ public class RodeoService {
         }
 
         // todo 发送消息
-
+        mqttNotificationService.sendGroupMessage(rodeo.getGroupId(), "");
         rodeo.setRunning(1);
         rodeoMapper.updateById(rodeo);
 
