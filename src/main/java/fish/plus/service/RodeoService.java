@@ -92,4 +92,9 @@ public class RodeoService {
     }
 
 
+    public List<RodeoRecordEntity> getRecordList(Long rodeoId) {
+        LambdaQueryWrapper<RodeoRecordEntity> lqw = new LambdaQueryWrapper<>();
+        lqw.eq(RodeoRecordEntity::getRodeoId, rodeoId);
+        return rodeoRecordMapper.selectList(lqw);
+    }
 }

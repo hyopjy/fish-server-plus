@@ -4,6 +4,7 @@ package fish.plus.controller;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import fish.plus.data.bo.RodeoBo;
+import fish.plus.data.entity.RodeoRecordEntity;
 import fish.plus.data.vo.GroupUserInfoVo;
 import fish.plus.data.vo.Result;
 import fish.plus.data.vo.RodeoInfoVo;
@@ -47,6 +48,15 @@ public class RodeoController {
                                @JsonSerialize(using = ToStringSerializer.class) Long groupId){
         rodeoService.openGame(groupId);
         return  Result.ok(null);
+    }
+
+
+    @PostMapping("/record/list")
+    public Result<List<RodeoRecordEntity>> getRecordList(@RequestParam("rodeoId")
+                                                             @JsonSerialize(using = ToStringSerializer.class)
+                                                             Long rodeoId){
+        List<RodeoRecordEntity> rodeoRecordEntityList = rodeoService.getRecordList(rodeoId);
+        return  Result.ok(rodeoRecordEntityList);
     }
 
 
