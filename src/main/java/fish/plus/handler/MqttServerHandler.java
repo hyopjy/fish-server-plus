@@ -15,6 +15,25 @@ import java.util.Set;
 @ChannelHandler.Sharable
 public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> {
 
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        log.info("客户端连接建立: {}", ctx.channel().remoteAddress());
+        super.channelActive(ctx);
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        log.info("客户端连接断开: {}", ctx.channel().remoteAddress());
+        // 清理该客户端的所有订阅
+        MqttMessageSender.removeAllSubscriptions(ctx);
+        super.channelInactive(ctx);
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        log.error("MQTT服务端异常: {}", cause.getMessage(), cause);
+        ctx.close();
+    }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, MqttMessage msg) {
@@ -30,6 +49,12 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
         } else if (msg instanceof MqttUnsubscribeMessage) {
             handleUnsubscribe(ctx, (MqttUnsubscribeMessage) msg);
             log.info("Unsubscribe");
+        } else if (msg.fixedHeader().messageType() == MqttMessageType.PINGREQ) {
+            handlePingReq(ctx);
+            log.debug("PingReq received");
+        } else if (msg.fixedHeader().messageType() == MqttMessageType.DISCONNECT) {
+            handleDisconnect(ctx);
+            log.info("Disconnect");
         }
     }
 
@@ -92,5 +117,19 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
                 subscriberCtx.writeAndFlush(publishMessage.retain());
             }
         }
+    }
+
+    private void handlePingReq(ChannelHandlerContext ctx) {
+        // 响应PINGREQ消息
+        MqttFixedHeader fixedHeader = new MqttFixedHeader(MqttMessageType.PINGRESP, false, MqttQoS.AT_MOST_ONCE, false, 0);
+        MqttMessage pingResp = new MqttMessage(fixedHeader);
+        ctx.writeAndFlush(pingResp);
+        log.debug("PingResp sent");
+    }
+
+    private void handleDisconnect(ChannelHandlerContext ctx) {
+        // 处理断开连接
+        log.info("Client disconnected: {}", ctx.channel().remoteAddress());
+        ctx.close();
     }
 }

@@ -1,7 +1,6 @@
 package fish.plus.config;
 
 
-
 import fish.plus.handler.MqttServerHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
@@ -15,7 +14,6 @@ import io.netty.handler.codec.mqtt.MqttDecoder;
 import io.netty.handler.codec.mqtt.MqttEncoder;
 import io.netty.handler.timeout.IdleStateHandler;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -46,8 +44,9 @@ public class NettyConfig {
                 ChannelPipeline pipeline = ch.pipeline();
                 pipeline.addLast("decoder", new MqttDecoder(1024 * 1024)); // 设置最大消息长度
                 pipeline.addLast("encoder", MqttEncoder.INSTANCE);
-                pipeline.addLast(new IdleStateHandler(60, 0, 0, TimeUnit.SECONDS)); // 心跳检测
+                pipeline.addLast(new IdleStateHandler(60, 0, 0, TimeUnit.SECONDS)); // 心跳检测：60秒读空闲超时
                 pipeline.addLast(new MqttServerHandler());
+
             }
         };
     }
@@ -65,5 +64,7 @@ public class NettyConfig {
                 .childOption(ChannelOption.TCP_NODELAY, true) // 禁用Nagle算法[6]
                 .childOption(ChannelOption.SO_KEEPALIVE, true) // 保持长连接[9]
                 .childHandler(channelInitializer());
+
     }
+
 }

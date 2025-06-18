@@ -4,7 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.mqtt.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -132,5 +132,40 @@ public class MqttMessageSender {
      */
     public static boolean hasSubscribers(String topic) {
         return getSubscriberCount(topic) > 0;
+    }
+
+    /**
+     * 清理指定客户端的所有订阅关系
+     *
+     * @param context 客户端上下文
+     */
+    public static void removeAllSubscriptions(ChannelHandlerContext context) {
+        topicSubscribers.entrySet().removeIf(entry -> {
+            Set<ChannelHandlerContext> contexts = entry.getValue();
+            boolean removed = contexts.remove(context);
+            if (contexts.isEmpty()) {
+                log.info("主题 {} 的所有订阅者已断开，移除主题", entry.getKey());
+            }
+            return removed && contexts.isEmpty();
+        });
+        log.info("已清理客户端的所有订阅关系: {}", context.channel().remoteAddress());
+    }
+
+    /**
+     * 获取所有订阅主题的统计信息
+     *
+     * @return 订阅统计信息
+     */
+    public static String getSubscriptionStats() {
+        StringBuilder stats = new StringBuilder();
+        stats.append("MQTT订阅统计:\n");
+        stats.append("- 总主题数: ").append(topicSubscribers.size()).append("\n");
+
+        for (Map.Entry<String, Set<ChannelHandlerContext>> entry : topicSubscribers.entrySet()) {
+            stats.append("- 主题: ").append(entry.getKey())
+                    .append(", 订阅者数: ").append(entry.getValue().size()).append("\n");
+        }
+
+        return stats.toString();
     }
 }
