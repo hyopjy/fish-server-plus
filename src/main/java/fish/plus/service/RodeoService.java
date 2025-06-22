@@ -8,6 +8,7 @@ import fish.plus.data.entity.RodeoRecordEntity;
 import fish.plus.data.vo.RodeoInfoVo;
 import fish.plus.mapper.RodeoMapper;
 import fish.plus.mapper.RodeoRecordMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
+@Slf4j
 public class RodeoService {
 
     @Autowired
@@ -93,5 +95,8 @@ public class RodeoService {
         LambdaQueryWrapper<RodeoRecordEntity> lqw = new LambdaQueryWrapper<>();
         lqw.eq(RodeoRecordEntity::getRodeoId, rodeoId);
         return rodeoRecordMapper.selectList(lqw);
+    }
+
+    public void stopGame(Long groupId) {
     }
 }

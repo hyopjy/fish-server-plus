@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/fish-server")
+@RequestMapping()
 public class RodeoController {
 
     @Autowired
@@ -49,6 +49,14 @@ public class RodeoController {
         rodeoService.openGame(groupId);
         return  Result.ok(null);
     }
+
+    @PostMapping("/rodeo/stop-game")
+    public Result stopGame(@RequestParam("groupId")
+                           @JsonSerialize(using = ToStringSerializer.class) Long groupId){
+        rodeoService.stopGame(groupId);
+        return  Result.ok(null);
+    }
+
 
 
     @PostMapping("/record/list")
