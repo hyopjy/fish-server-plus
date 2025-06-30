@@ -1,5 +1,7 @@
 package fish.plus.service;
 
+import com.alibaba.fastjson.JSONObject;
+import fish.plus.data.dto.MessageContentDTO;
 import fish.plus.utils.MqttMessageSender;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,12 +18,14 @@ public class MqttNotificationService {
      * 发送用户消息
      * 
      * @param groupId  用户ID
-     * @param message 消息内容
      */
-    public void sendGroupMessage(Long groupId, String message) {
+    public void sendGroupRodeoMessage(Long groupId) {
         String topic = "topic/" + groupId;
-        MqttMessageSender.sendMessageToSubscribers(topic, message);
-        log.info("用户消息已发送 - 用户ID: {}, 消息: {}", groupId, message);
+        MessageContentDTO dto = new MessageContentDTO();
+        dto.setMessageType("RODEO_INIT");
+        dto.setGroupId(groupId);
+        MqttMessageSender.sendMessageToSubscribers(topic, JSONObject.toJSONString(dto));
+        log.info("用户消息已发送 - 用户ID: {}, 消息: {}", groupId, JSONObject.toJSONString(dto));
     }
 
 } 

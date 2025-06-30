@@ -82,7 +82,7 @@ public class RodeoService {
         }
 
         // todo 发送消息
-        mqttNotificationService.sendGroupMessage(rodeo.getGroupId(), rodeo.getGroupId()+"");
+        mqttNotificationService.sendGroupRodeoMessage(rodeo.getGroupId());
         rodeo.setRunning(1);
         rodeoMapper.updateById(rodeo);
 
