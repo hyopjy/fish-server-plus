@@ -49,5 +49,15 @@ public class RodeoEntity {
     @TableField(value = "running")
     private int running;
 
+    @TableField(value = "giveProp")
+    private Boolean giveProp;
+
+    // 奖励道具编码
+    @TableField(value = "propCode")
+    private String propCode;
+
+    @TableField(value = "propName")
+    private String propName;
+
 
 }
