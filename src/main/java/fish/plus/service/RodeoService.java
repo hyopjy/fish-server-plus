@@ -69,6 +69,9 @@ public class RodeoService {
         saveRodeo.setPlayers(rodeoBo.getPlayers());
         saveRodeo.setRound(rodeoBo.getRound());
         saveRodeo.setRunning(0);
+        saveRodeo.setGiveProp(rodeoBo.getGiveProp());
+        saveRodeo.setPropCode(rodeoBo.getPropCode());
+        saveRodeo.setPropName(rodeoBo.getPropName());
         rodeoMapper.insertOrUpdate(saveRodeo);
 
     }
