@@ -14,4 +14,5 @@ public class MessageContentDTO implements Serializable {
 
     private Long groupId;
 
+    private Long rodeoId;
 }
