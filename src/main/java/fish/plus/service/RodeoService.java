@@ -29,9 +29,9 @@ public class RodeoService {
     private MqttNotificationService mqttNotificationService;
 
 
-    public RodeoInfoVo getRodeoInfoVo(Long groupId) {
+    public RodeoInfoVo getRodeoInfoVo(Long rodeoId) {
         LambdaQueryWrapper<RodeoEntity> lqw = new LambdaQueryWrapper<>();
-        lqw.eq(RodeoEntity::getGroupId, groupId);
+        lqw.eq(RodeoEntity::getId, rodeoId);
         lqw.last("limit 1");
         RodeoEntity rodeo  = rodeoMapper.selectOne(lqw);
         if(Objects.isNull(rodeo)){
@@ -48,18 +48,7 @@ public class RodeoService {
     }
 
     public void addRodeo(RodeoBo rodeoBo) {
-        LambdaQueryWrapper<RodeoEntity> lqw = new LambdaQueryWrapper<>();
-        lqw.eq(RodeoEntity::getGroupId, rodeoBo.getGroupId());
-        lqw.last("limit 1");
-        RodeoEntity rodeo  = rodeoMapper.selectOne(lqw);
-        // BusinessException
-        if(Objects.nonNull(rodeo) && 1 == rodeo.getRunning()){
-            throw new BusinessException("游戏正在进行,不允许创建");
-        }
         RodeoEntity saveRodeo = new RodeoEntity();
-        if (Objects.nonNull(rodeo)) {
-            saveRodeo.setId(rodeo.getId());
-        }
         saveRodeo.setPlayingMethod(rodeoBo.getPlayingMethod());
         saveRodeo.setGroupId(rodeoBo.getGroupId());
         saveRodeo.setVenue(rodeoBo.getVenue());
@@ -76,9 +65,9 @@ public class RodeoService {
 
     }
 
-    public void openGame(Long groupId) {
+    public void openGame(Long rodeoId) {
         LambdaQueryWrapper<RodeoEntity> lqw = new LambdaQueryWrapper<>();
-        lqw.eq(RodeoEntity::getGroupId, groupId);
+        lqw.eq(RodeoEntity::getId, rodeoId);
         lqw.last("limit 1");
         RodeoEntity rodeo  = rodeoMapper.selectOne(lqw);
         // BusinessException
@@ -87,12 +76,11 @@ public class RodeoService {
         }
 
         // todo 发送消息
-        mqttNotificationService.sendGroupRodeoMessage(rodeo.getId(), rodeo.getGroupId());
+        mqttNotificationService.sendInitRodeoMessage(rodeo.getId(), rodeo.getGroupId());
         rodeo.setRunning(1);
         rodeoMapper.updateById(rodeo);
 
     }
-
 
     public List<RodeoRecordEntity> getRecordList(Long rodeoId) {
         LambdaQueryWrapper<RodeoRecordEntity> lqw = new LambdaQueryWrapper<>();
@@ -100,6 +88,31 @@ public class RodeoService {
         return rodeoRecordMapper.selectList(lqw);
     }
 
-    public void stopGame(Long groupId) {
+    public void stopGame(Long rodeoId) {
+        LambdaQueryWrapper<RodeoEntity> lqw = new LambdaQueryWrapper<>();
+        lqw.eq(RodeoEntity::getId, rodeoId);
+        lqw.last("limit 1");
+        RodeoEntity rodeo  = rodeoMapper.selectOne(lqw);
+        if(Objects.isNull(rodeo)){
+            throw new BusinessException("数据不存在");
+        }
+        mqttNotificationService.sendDeleteMessage(rodeo.getId(), rodeo.getGroupId());
+    }
+
+    public List<RodeoEntity> getRodeoList(Long groupId) {
+        LambdaQueryWrapper<RodeoEntity> lqw = new LambdaQueryWrapper<>();
+        lqw.eq(RodeoEntity::getGroupId, groupId);
+        return rodeoMapper.selectList(lqw);
+    }
+
+    public void restartGame(Long rodeoId) {
+        LambdaQueryWrapper<RodeoEntity> lqw = new LambdaQueryWrapper<>();
+        lqw.eq(RodeoEntity::getId, rodeoId);
+        lqw.last("limit 1");
+        RodeoEntity rodeo  = rodeoMapper.selectOne(lqw);
+        if(Objects.isNull(rodeo)){
+            throw new BusinessException("数据不存在");
+        }
+        mqttNotificationService.sendInitRodeoMessage(rodeo.getId(), rodeo.getGroupId());
     }
 }

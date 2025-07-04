@@ -19,10 +19,20 @@ public class MqttNotificationService {
      * 
      * @param groupId  用户ID
      */
-    public void sendGroupRodeoMessage(Long rodeoId,Long groupId) {
+    public void sendInitRodeoMessage(Long rodeoId, Long groupId) {
         String topic = "topic/" + groupId;
         MessageContentDTO dto = new MessageContentDTO();
         dto.setMessageType("RODEO_INIT");
+        dto.setGroupId(groupId);
+        dto.setRodeoId(rodeoId);
+        MqttMessageSender.sendMessageToSubscribers(topic, JSONObject.toJSONString(dto));
+        log.info("用户消息已发送 - 用户ID: {}, 消息: {}", groupId, JSONObject.toJSONString(dto));
+    }
+
+    public void sendDeleteMessage(Long rodeoId, Long groupId) {
+        String topic = "topic/" + groupId;
+        MessageContentDTO dto = new MessageContentDTO();
+        dto.setMessageType("RODEO_STOP");
         dto.setGroupId(groupId);
         dto.setRodeoId(rodeoId);
         MqttMessageSender.sendMessageToSubscribers(topic, JSONObject.toJSONString(dto));
