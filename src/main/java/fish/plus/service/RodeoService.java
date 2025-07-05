@@ -42,12 +42,15 @@ public class RodeoService {
         List<RodeoRecordEntity> recordList = rodeoRecordMapper.selectList(recordLqw);
 
         RodeoInfoVo vo = new RodeoInfoVo();
+        rodeo.setPlayers(getOutOfPlayers(rodeo.getPlayers()));
         vo.setRodeo(rodeo);
         vo.setRecordList(recordList);
         return vo;
     }
 
     public void addRodeo(RodeoBo rodeoBo) {
+        String players = getPlayers(rodeoBo.getPlayers());
+
         RodeoEntity saveRodeo = new RodeoEntity();
         saveRodeo.setPlayingMethod(rodeoBo.getPlayingMethod());
         saveRodeo.setGroupId(rodeoBo.getGroupId());
@@ -55,7 +58,7 @@ public class RodeoService {
         saveRodeo.setDay(rodeoBo.getDay());
         saveRodeo.setStartTime(rodeoBo.getStartTime() + ":00");
         saveRodeo.setEndTime(rodeoBo.getEndTime() + ":00");
-        saveRodeo.setPlayers(rodeoBo.getPlayers());
+        saveRodeo.setPlayers(players);
         saveRodeo.setRound(rodeoBo.getRound());
         saveRodeo.setRunning(0);
         saveRodeo.setGiveProp(rodeoBo.getGiveProp());
@@ -63,6 +66,46 @@ public class RodeoService {
         saveRodeo.setPropName(rodeoBo.getPropName());
         rodeoMapper.insertOrUpdate(saveRodeo);
 
+    }
+
+    public String getPlayers(String players) {
+        // 避免添加多余的逗号
+        if (players == null || players.isEmpty()) {
+           return  "";
+        } else {
+            // 确保只在需要时添加逗号
+            if (!players.startsWith(",") && !players.endsWith(",")) {
+                return "," + players + ",";
+            } else if (!players.startsWith(",")) {
+                return "," + players;
+            } else if (!players.endsWith(",")) {
+                return players + ",";
+            } else {
+                return players;
+            }
+        }
+    }
+
+    public String getOutOfPlayers(String players) {
+        // 如果players为空，直接返回
+        if (players == null || players.isEmpty()) {
+            return "";
+        }
+
+        // 去掉开头和结尾的逗号
+        if (players.startsWith(",") && players.endsWith(",")) {
+            return players.substring(1, players.length() - 1);
+        }
+        // 只去掉开头的逗号
+        else if (players.startsWith(",")) {
+            return players.substring(1);
+        }
+        // 只去掉结尾的逗号
+        else if (players.endsWith(",")) {
+            return players.substring(0, players.length() - 1);
+        }
+        // 没有逗号的情况
+        return players;
     }
 
     public void openGame(Long rodeoId) {
@@ -102,7 +145,11 @@ public class RodeoService {
     public List<RodeoEntity> getRodeoList(Long groupId) {
         LambdaQueryWrapper<RodeoEntity> lqw = new LambdaQueryWrapper<>();
         lqw.eq(RodeoEntity::getGroupId, groupId);
-        return rodeoMapper.selectList(lqw);
+        List<RodeoEntity> list = rodeoMapper.selectList(lqw);
+        list.forEach(rodeo->{
+            rodeo.setPlayers(getOutOfPlayers(rodeo.getPlayers()));
+        });
+        return list;
     }
 
     public void restartGame(Long rodeoId) {
