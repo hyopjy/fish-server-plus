@@ -67,7 +67,11 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
     }
 
     private void handlePublish(ChannelHandlerContext ctx, MqttPublishMessage msg) {
+
         String topic = msg.variableHeader().topicName();
+        if (topic.startsWith("$SYS")) {
+            ctx.close(); // 非管理员订阅系统主题则断开
+        }
         ByteBuf payload = msg.payload();
         log.info("收到主题[{}]数据: {}", topic, payload.toString(StandardCharsets.UTF_8));
 
@@ -87,6 +91,10 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
         // 记录订阅关系
         for (MqttTopicSubscription subscription : msg.payload().topicSubscriptions()) {
             String topic = subscription.topicName();
+            // 示例：ACL鉴权逻辑
+            if (topic.startsWith("$SYS")) {
+                ctx.close(); // 非管理员订阅系统主题则断开
+            }
             MqttMessageSender.addSubscriber(topic, ctx);
             log.info("客户端已订阅主题: {}", topic);
         }
